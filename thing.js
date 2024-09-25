@@ -10,66 +10,73 @@ function drawRect(pos, dim, r, g, b, a) {
     c.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`
     c.fillRect(pos.x, pos.y, dim.x, dim.y)
 }
-function drawLine(list, r, g, b, a) {
-    c.strokeStyle = `rgba(${r}, ${g}, ${b}, ${a})`
-    c.beginPath()
-    c.moveTo(list[0].x, list[0].y)
-    for (let i of list) {
-        c.lineTo(i.x, i.y)
-    }
-    c.stroke()
-}
-function drawPoly(list, r, g, b, a) {
-    c.strokeStyle = `rgba(${r}, ${g}, ${b}, ${a})`
-    c.beginPath()
-    c.moveTo(list[0].x, list[0].y)
-    for (let i of list) {
-        c.lineTo(i.x, i.y)
-    }
-    c.stroke()
-    c.fill()
-}
-function drawArc(pos, rad, sa, ea, clock, r, g, b, a) {
-    c.strokeStyle = `rgba(${r}, ${g}, ${b}, ${a})`
-    c.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`
-    c.beginPath()
-    c.arc(pos.x, pos.y, rad, sa, ea, !clock)
-    c.stroke()
-    c.fill()
-}
-function write(text, pos, r, g, b, a) {
-    c.font = '20px Arial'
-    c.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`
-    c.fillText(text, pos.x, pos.y)
-}
-function clear() {
-    c.clearRect(0, 0, window.innerWidth, window.innerHeight)
-}
-function draw() {
-
-    requestAnimationFrame(draw)
-}
-draw()
 function itterate(c, n) {
     let s = c
     let d = c
     let l = 255
-    for (let i = 0; i < n; i++) {
-        if (s.re > 1) {
-            l = i
-            break
+    if (
+        s.im < 0.5 && s.im > -0.5 && s.re < 0.2 && s.re > -0.5 ||
+        s.im < 0.2 && s.im > -0.2 && s.re < -0.9 && s.re > -1.1 ||
+        s.im < 0.1 && s.im > -0.1 && s.re < -0.8 && s.re > -1.2
+    ) {
+        l = 255
+    } else {
+        for (let i = 0; i < n; i++) {
+            if (s.re > 1) {
+                l = i
+                break
+            }
+            if (s.im > 1 || s.im < -1) {
+                l = i
+                break
+            }
+            s = math.add(math.multiply(s, s), d)
         }
-        if (s.im > 1 || s.im < -1) {
-            l = i
-            break
-        }
-        s = math.add(math.multiply(s, s), d)
     }
     return l
 }
-for (let x = -2; x < 2; x += 0.002) {
-    for (let y = -2; y < 2; y += 0.002) {
+let res = 1000
+let x = -1.7
+let y = -1
+let layers = 0
+//-1.7, 0.5, -1, 1
+function draw() {
+    for (let i = 0; i < 1000; i++) {
         let result = itterate(math.complex(x, y), 100)
-        drawRect(Vector2(canvas.width/2 + x * 500, canvas.height/2 + y * 500), Vector2(1, 1), result/100 * 255, result/100 * 255, result/100 * 255, result/100)
+        drawRect(Vector2(canvas.width/2 + x * res, canvas.height/2 + y * res), Vector2(1, 1), 255 - result/100 * 205, result/100 * 255, result/100 * 255, 1)
+        if (x < 0.5) {
+            x += 1/res
+        }
+        if (x >= 0.5) {
+            x = -1.7
+            y += 1/res
+        }
+        if (y >= 1) {
+            y = -1
+            layers++
+        }
+    }
+    if (layers < 3) {
+        requestAnimationFrame(draw)
     }
 }
+draw()
+
+const times = [];
+let fps;
+
+function refreshLoop() {
+    window.requestAnimationFrame(() => {
+        const now = performance.now();
+        while (times.length > 0 && times[0] <= now - 1000) {
+            times.shift();
+        }
+        times.push(now);
+        fps = times.length;
+        console.clear()
+        console.log(fps)
+        refreshLoop();
+    });
+}
+  
+refreshLoop()
