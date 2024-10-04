@@ -1,4 +1,4 @@
-class imNumber {
+fclass imNumber {
     constructor(re, im) {
         this.re = re; // re part
         this.im = im; // im part
@@ -75,6 +75,6 @@ function itterate(c, n) {
     }
     return l
 }
-onmessage = function(event) {
-    postMessage({result:itterate(event.c, event.n), c: event.c})
+self.onmessage = function(event) {
+    self.postMessage({result:itterate(event.c, event.n), c: event.c})
 }
