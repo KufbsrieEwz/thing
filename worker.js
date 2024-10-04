@@ -76,5 +76,6 @@ function itterate(c, n) {
     return l
 }
 self.onmessage = function(event) {
+    console.log({result:itterate(event.c, event.n), c: event.c})
     self.postMessage({result:itterate(event.c, event.n), c: event.c})
 }
